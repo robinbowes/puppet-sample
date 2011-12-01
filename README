@@ -1,3 +1,22 @@
 Sample puppet module pattern to be used as the base for other modules
 
 Shows various techniques I have found useful.
+
+A key pattern I have developed is to use the 'concat' module to generate config files from several different fragments
+
+This makes it easy to extend the configuration from other modules.
+
+For example, consider an snmpd module. The basic config will have a few elements that are defined in the snmpd module itself. However, we may want to add additional monitoring if mysql is installed. This requires an extra line or two in the snmpd config file. We can add this as follows:
+
+class mysqld::snmpd{
+
+    include
+        ::snmpd
+        ::snmpd::config::general
+
+    snmpd::config::general::fragment{'mysql':
+        order = 20,
+        content => 'puppet:///modules/mysqld/snmpd.conf.mysql'
+    }
+
+}
